@@ -23,9 +23,13 @@ struct PokemonRowView: View {
     
     var body: some View {
         VStack {
-            Image(pokemonImg)
-                .resizable()
+            AsyncImage(url: URL(string: pokemonImg)) { image in
+              image.resizable()
+                .aspectRatio(contentMode: .fit)
                 .frame(width: viewWidth - 20, height: viewWidth - 20)
+            } placeholder: {
+              ProgressView()
+            }
             
             Rectangle()
                 .cornerRadius(10)

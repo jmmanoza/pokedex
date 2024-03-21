@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct Pokemon: Codable, Identifiable, Hashable {
-    let id: String
-    var pokemonName: String
-    var pokemonImg: String
+struct PokemonResponse: Codable {
+    let results: [Pokemon]
 }
+
+struct Pokemon: Codable, Hashable {
+    let name: String
+    let url: String
+}
+
