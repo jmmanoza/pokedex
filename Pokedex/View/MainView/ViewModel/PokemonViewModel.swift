@@ -8,12 +8,23 @@
 import Foundation
 
 class PokemonViewModel: ObservableObject {
-    @Published var pokemons: [Pokemon] = [
-        .init(id: "00001", pokemonName: "bulbasur", pokemonImg: "001"),
-        .init(id: "00002", pokemonName: "bulbasur", pokemonImg: "001"),
-        .init(id: "00003", pokemonName: "bulbasur", pokemonImg: "001"),
-        .init(id: "00004", pokemonName: "bulbasur", pokemonImg: "001"),
-        .init(id: "00005", pokemonName: "bulbasur", pokemonImg: "001"),
-        .init(id: "00006", pokemonName: "bulbasur", pokemonImg: "001"),
-    ]
+    
+    let service: PokemonAPIDataService
+    let pokemonImgUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+    let imgExt = ".png"
+    @Published var pokemons = [Pokemon]()
+    
+    init(service: PokemonAPIDataService = PokemonAPIDataService()) {
+        self.service = service
+    }
+    
+    @MainActor
+    func getPokemons() async {
+        do {
+            let pokemons = try await service.fetchListOfPokemons()
+            self.pokemons = pokemons
+        } catch(let error) {
+            print("catch error; \(error.localizedDescription)")
+        }
+    }
 }

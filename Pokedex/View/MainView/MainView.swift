@@ -10,6 +10,7 @@ import AVFoundation
 
 struct MainView: View {
     
+    let soundManager = SoundManager()
     @StateObject var viewModel = PokemonViewModel()
     var audioPlayer: AVAudioPlayer?
     @State var showPokemonDetails: Bool = false
@@ -33,9 +34,9 @@ struct MainView: View {
                         
                         ScrollView {
                             LazyVGrid(columns: gridItems) {
-                                ForEach(viewModel.pokemons, id: \.self) { pokemon in
-                                    PokemonRowView(pokemonImg: pokemon.pokemonImg,
-                                                   pokemonName: pokemon.pokemonName,
+                                ForEach(Array(viewModel.pokemons.enumerated()), id: \.element) { pokemonIndex, pokemon in
+                                    PokemonRowView(pokemonImg: "\(viewModel.pokemonImgUrl)\(pokemonIndex+1)\(viewModel.imgExt)",
+                                                   pokemonName: pokemon.name.capitalized,
                                                    viewWidth: proxy.size.width / 3) {
                                         showPokemonDetails.toggle()
                                     }
@@ -45,6 +46,9 @@ struct MainView: View {
                         .background(Color("PrimaryBg"))
                     }
                 }
+            }
+            .task {
+                await viewModel.getPokemons()
             }
             .edgesIgnoringSafeArea(.all)
             .fullScreenCover(isPresented: $showPokemonDetails) {
@@ -71,7 +75,7 @@ private extension MainView {
             Spacer()
             
             Button {
-                playSound()
+                soundManager.playSound(soundName: "PoGo", type: "m4a")
             } label: {
                 Image("piano")
                     .resizable()
@@ -82,22 +86,6 @@ private extension MainView {
         .background(Color("PrimaryColor"))
         .frame(width: width, height: 150)
         .edgesIgnoringSafeArea(.all)
-    }
-    
-    func playSound() {
-        print("tapped")
-        guard let audioFile = Bundle.main.path(forResource: "PoGo", ofType: "m4a") else {
-            return
-        }
-        do {
-            let soundPlayer: AVAudioPlayer? = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: audioFile))
-            guard let player = soundPlayer else { return }
-            
-            player.play()
-            
-        } catch let error {
-            print("Cannot play sound. \(error.localizedDescription)")
-        }
     }
 }
 
